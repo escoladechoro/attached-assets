@@ -1,0 +1,51 @@
+# CONTEXTO DO PROJETO
+Você é um engenheiro de software sênior desenvolvendo um sistema de gestão completo para uma clínica de estética chamada Instituto Acaz Ribeiro, localizada em Brasília/DF.
+
+# STACK TECNOLÓGICA OBRIGATÓRIA
+- Backend: Node.js + Express (ou FastAPI se preferir Python)
+- Banco de dados: Supabase (PostgreSQL com realtime)
+- Frontend: React + Tailwind CSS
+- Autenticação: Supabase Auth com RLS (Row Level Security)
+- Pagamentos: Asaas API (PIX, crédito, débito, boleto)
+- NFS-e: Asaas (emissão automática pós-venda)
+- WhatsApp: Evolution API ou Z-API
+- Chatbot: Typebot + n8n para orquestração
+- Deploy: Railway.app ou Render
+
+# REGRAS DE NEGÓCIO — FINANCEIRO
+Split automático por venda:
+1. Capturar valor bruto
+2. Descontar taxa por modalidade (configurável por admin):
+   - PIX: 0%
+   - Crédito: 3.5%
+   - Débito: 2.0%
+   - Dinheiro: 0%
+3. Sobre o líquido: 30% clínica / 70% profissional
+4. Registrar cada parte separadamente no banco
+
+# PERFIS DE ACESSO (RLS no Supabase)
+- GESTAO: acesso total a todos os dados
+- RECEPCAO: agenda + vendas + cadastros, sem dados financeiros individuais
+- PROFISSIONAL: apenas seus próprios agendamentos e extrato
+
+# MÓDULOS A DESENVOLVER (em ordem)
+1. Auth + perfis de acesso com RLS
+2. Cadastro de clientes (nome, CPF, email, tel, CEP+Correios, emergência)
+3. Cadastro de profissionais + escala de horários
+4. Catálogo de procedimentos + pacotes com preços
+5. Agenda com bloqueio em tempo real (sem duplicidade)
+6. Venda + split financeiro automático
+7. Controle de sessões por contrato (cada contrato único por profissional)
+8. Emissão e envio de NFS-e via Asaas
+9. Dashboards por perfil
+10. Relatórios financeiros por período, profissional e procedimento
+
+# REGRAS DE AGENDA
+- Cada profissional tem dias/horários configurados no sistema
+- Cada procedimento tem duração definida por profissional
+- Ao confirmar agendamento: bloquear slot imediatamente
+- Pacotes com N sessões: agenda só bloqueia sessão a sessão conforme uso
+- Profissional pode bloquear horário manualmente
+
+# AGORA
+Comece pelo módulo 1: schema do banco de dados no Supabase com todas as tabelas, relacionamentos e políticas RLS. Gere o SQL completo antes de qualquer código frontend ou backend.

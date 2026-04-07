@@ -3,13 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Instituto Acaz Ribeiro - Clinic Management API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: clients
+    description: Client management
+  - name: professionals
+    description: Professional management
+  - name: services
+    description: Services and packages
+  - name: schedule
+    description: Appointment scheduling
+  - name: sales
+    description: Sales and financial split
+  - name: contracts
+    description: Session contracts
+  - name: dashboard
+    description: Dashboard summaries
+  - name: reports
+    description: Financial reports
+
 paths:
   /healthz:
     get:
@@ -24,6 +43,1084 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Clients
+  /clients:
+    get:
+      operationId: listClients
+      tags: [clients]
+      summary: List all clients
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientListResponse"
+    post:
+      operationId: createClient
+      tags: [clients]
+      summary: Create a new client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClientBody"
+      responses:
+        "201":
+          description: Client created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /clients/{id}:
+    get:
+      operationId: getClient
+      tags: [clients]
+      summary: Get client by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateClient
+      tags: [clients]
+      summary: Update a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClientBody"
+      responses:
+        "200":
+          description: Updated client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+    delete:
+      operationId: deleteClient
+      tags: [clients]
+      summary: Delete a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Professionals
+  /professionals:
+    get:
+      operationId: listProfessionals
+      tags: [professionals]
+      summary: List all professionals
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of professionals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Professional"
+    post:
+      operationId: createProfessional
+      tags: [professionals]
+      summary: Create a new professional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProfessionalBody"
+      responses:
+        "201":
+          description: Professional created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Professional"
+
+  /professionals/{id}:
+    get:
+      operationId: getProfessional
+      tags: [professionals]
+      summary: Get professional by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Professional
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Professional"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateProfessional
+      tags: [professionals]
+      summary: Update a professional
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfessionalBody"
+      responses:
+        "200":
+          description: Updated professional
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Professional"
+    delete:
+      operationId: deleteProfessional
+      tags: [professionals]
+      summary: Delete a professional
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /professionals/{id}/schedule:
+    get:
+      operationId: getProfessionalSchedule
+      tags: [professionals]
+      summary: Get professional weekly schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleSlot"
+    put:
+      operationId: updateProfessionalSchedule
+      tags: [professionals]
+      summary: Update professional weekly schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slots:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/CreateScheduleSlotBody"
+              required: [slots]
+      responses:
+        "200":
+          description: Updated schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleSlot"
+
+  # Services
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      summary: List all services
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [services]
+      summary: Create a service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateServiceBody"
+      responses:
+        "201":
+          description: Service created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+
+  /services/{id}:
+    get:
+      operationId: getService
+      tags: [services]
+      summary: Get service by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    patch:
+      operationId: updateService
+      tags: [services]
+      summary: Update a service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateServiceBody"
+      responses:
+        "200":
+          description: Updated service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    delete:
+      operationId: deleteService
+      tags: [services]
+      summary: Delete a service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /packages:
+    get:
+      operationId: listPackages
+      tags: [services]
+      summary: List all service packages
+      responses:
+        "200":
+          description: List of packages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServicePackage"
+    post:
+      operationId: createPackage
+      tags: [services]
+      summary: Create a service package
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePackageBody"
+      responses:
+        "201":
+          description: Package created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicePackage"
+
+  /packages/{id}:
+    get:
+      operationId: getPackage
+      tags: [services]
+      summary: Get package by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Package
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicePackage"
+    patch:
+      operationId: updatePackage
+      tags: [services]
+      summary: Update a package
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePackageBody"
+      responses:
+        "200":
+          description: Updated package
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicePackage"
+    delete:
+      operationId: deletePackage
+      tags: [services]
+      summary: Delete a package
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Appointments
+  /appointments:
+    get:
+      operationId: listAppointments
+      tags: [schedule]
+      summary: List appointments
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: professionalId
+          in: query
+          schema:
+            type: integer
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [scheduled, confirmed, completed, cancelled, no_show]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: List of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      tags: [schedule]
+      summary: Create a new appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentBody"
+      responses:
+        "201":
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "409":
+          description: Slot already booked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /appointments/{id}:
+    get:
+      operationId: getAppointment
+      tags: [schedule]
+      summary: Get appointment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    patch:
+      operationId: updateAppointment
+      tags: [schedule]
+      summary: Update appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAppointmentBody"
+      responses:
+        "200":
+          description: Updated appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    delete:
+      operationId: deleteAppointment
+      tags: [schedule]
+      summary: Cancel/delete appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /appointments/available-slots:
+    get:
+      operationId: getAvailableSlots
+      tags: [schedule]
+      summary: Get available time slots for a professional on a date
+      parameters:
+        - name: professionalId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: serviceId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Available slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /appointments/{id}/block:
+    post:
+      operationId: blockAppointmentSlot
+      tags: [schedule]
+      summary: Manually block a time slot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Slot blocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  # Sales
+  /sales:
+    get:
+      operationId: listSales
+      tags: [sales]
+      summary: List sales
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: professionalId
+          in: query
+          schema:
+            type: integer
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of sales
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaleListResponse"
+    post:
+      operationId: createSale
+      tags: [sales]
+      summary: Create a sale with automatic financial split
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSaleBody"
+      responses:
+        "201":
+          description: Sale created with split
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sale"
+
+  /sales/{id}:
+    get:
+      operationId: getSale
+      tags: [sales]
+      summary: Get sale by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sale"
+    patch:
+      operationId: updateSale
+      tags: [sales]
+      summary: Update a sale
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSaleBody"
+      responses:
+        "200":
+          description: Updated sale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sale"
+
+  # Contracts / Sessions
+  /contracts:
+    get:
+      operationId: listContracts
+      tags: [contracts]
+      summary: List session contracts
+      parameters:
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+        - name: professionalId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, cancelled]
+      responses:
+        "200":
+          description: List of contracts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contract"
+    post:
+      operationId: createContract
+      tags: [contracts]
+      summary: Create a session contract
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContractBody"
+      responses:
+        "201":
+          description: Contract created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+
+  /contracts/{id}:
+    get:
+      operationId: getContract
+      tags: [contracts]
+      summary: Get contract by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contract
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+    patch:
+      operationId: updateContract
+      tags: [contracts]
+      summary: Update contract status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContractBody"
+      responses:
+        "200":
+          description: Updated contract
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+
+  /contracts/{id}/sessions:
+    get:
+      operationId: listContractSessions
+      tags: [contracts]
+      summary: List sessions for a contract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContractSession"
+    post:
+      operationId: addContractSession
+      tags: [contracts]
+      summary: Record a session for a contract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSessionBody"
+      responses:
+        "201":
+          description: Session added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractSession"
+
+  # Dashboard
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary stats
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [today, week, month]
+            default: today
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/today-appointments:
+    get:
+      operationId: getTodayAppointments
+      tags: [dashboard]
+      summary: Get today appointments grouped by professional
+      responses:
+        "200":
+          description: Today's appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+
+  /dashboard/recent-sales:
+    get:
+      operationId: getRecentSales
+      tags: [dashboard]
+      summary: Get recent sales
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Recent sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sale"
+
+  /dashboard/professional-stats:
+    get:
+      operationId: getProfessionalStats
+      tags: [dashboard]
+      summary: Get stats per professional (for current user if professional role)
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, year]
+            default: month
+      responses:
+        "200":
+          description: Professional stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProfessionalStat"
+
+  # Reports
+  /reports/financial:
+    get:
+      operationId: getFinancialReport
+      tags: [reports]
+      summary: Financial report by period
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: professionalId
+          in: query
+          schema:
+            type: integer
+        - name: serviceId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Financial report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialReport"
+
+  /reports/appointments:
+    get:
+      operationId: getAppointmentReport
+      tags: [reports]
+      summary: Appointment report
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: professionalId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentReport"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +1131,955 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    # Auth
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [gestao, recepcao, profissional]
+        professionalId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - professionalId
+        - createdAt
+
+    # Clients
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        cpf:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        cep:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        birthDate:
+          type: ["string", "null"]
+          format: date
+        emergencyContact:
+          type: ["string", "null"]
+        emergencyPhone:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - cpf
+        - email
+        - phone
+        - cep
+        - address
+        - birthDate
+        - emergencyContact
+        - emergencyPhone
+        - notes
+        - createdAt
+
+    ClientListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Client"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+
+    CreateClientBody:
+      type: object
+      properties:
+        name:
+          type: string
+        cpf:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        cep:
+          type: string
+        address:
+          type: string
+        birthDate:
+          type: string
+        emergencyContact:
+          type: string
+        emergencyPhone:
+          type: string
+        notes:
+          type: string
+      required:
+        - name
+
+    UpdateClientBody:
+      type: object
+      properties:
+        name:
+          type: string
+        cpf:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        cep:
+          type: string
+        address:
+          type: string
+        birthDate:
+          type: string
+        emergencyContact:
+          type: string
+        emergencyPhone:
+          type: string
+        notes:
+          type: string
+
+    # Professionals
+    Professional:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        specialty:
+          type: ["string", "null"]
+        cpf:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        clinicSharePercent:
+          type: number
+          description: Percentage going to clinic (default 30)
+        professionalSharePercent:
+          type: number
+          description: Percentage going to professional (default 70)
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - phone
+        - specialty
+        - cpf
+        - active
+        - clinicSharePercent
+        - professionalSharePercent
+        - createdAt
+
+    CreateProfessionalBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        specialty:
+          type: string
+        cpf:
+          type: string
+        clinicSharePercent:
+          type: number
+          default: 30
+        professionalSharePercent:
+          type: number
+          default: 70
+      required:
+        - name
+        - email
+
+    UpdateProfessionalBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        specialty:
+          type: string
+        cpf:
+          type: string
+        active:
+          type: boolean
+        clinicSharePercent:
+          type: number
+        professionalSharePercent:
+          type: number
+
+    ScheduleSlot:
+      type: object
+      properties:
+        id:
+          type: integer
+        professionalId:
+          type: integer
+        dayOfWeek:
+          type: integer
+          description: 0=Sunday, 1=Monday, ..., 6=Saturday
+        startTime:
+          type: string
+          description: "HH:MM"
+        endTime:
+          type: string
+          description: "HH:MM"
+      required:
+        - id
+        - professionalId
+        - dayOfWeek
+        - startTime
+        - endTime
+
+    CreateScheduleSlotBody:
+      type: object
+      properties:
+        dayOfWeek:
+          type: integer
+        startTime:
+          type: string
+        endTime:
+          type: string
+      required:
+        - dayOfWeek
+        - startTime
+        - endTime
+
+    # Services
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        durationMinutes:
+          type: integer
+        price:
+          type: number
+        active:
+          type: boolean
+        category:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - description
+        - durationMinutes
+        - price
+        - active
+        - category
+        - createdAt
+
+    CreateServiceBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        durationMinutes:
+          type: integer
+        price:
+          type: number
+        category:
+          type: string
+      required:
+        - name
+        - durationMinutes
+        - price
+
+    UpdateServiceBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        durationMinutes:
+          type: integer
+        price:
+          type: number
+        active:
+          type: boolean
+        category:
+          type: string
+
+    ServicePackage:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        serviceId:
+          type: integer
+        serviceName:
+          type: string
+        totalSessions:
+          type: integer
+        price:
+          type: number
+        active:
+          type: boolean
+        validityDays:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - description
+        - serviceId
+        - serviceName
+        - totalSessions
+        - price
+        - active
+        - validityDays
+        - createdAt
+
+    CreatePackageBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        serviceId:
+          type: integer
+        totalSessions:
+          type: integer
+        price:
+          type: number
+        validityDays:
+          type: integer
+      required:
+        - name
+        - serviceId
+        - totalSessions
+        - price
+
+    UpdatePackageBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        totalSessions:
+          type: integer
+        price:
+          type: number
+        active:
+          type: boolean
+        validityDays:
+          type: integer
+
+    # Appointments
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: string
+        professionalId:
+          type: integer
+        professionalName:
+          type: string
+        serviceId:
+          type: integer
+        serviceName:
+          type: string
+        contractId:
+          type: ["integer", "null"]
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+        endTime:
+          type: string
+        status:
+          type: string
+          enum: [scheduled, confirmed, completed, cancelled, no_show, blocked]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - clientId
+        - clientName
+        - professionalId
+        - professionalName
+        - serviceId
+        - serviceName
+        - contractId
+        - date
+        - startTime
+        - endTime
+        - status
+        - notes
+        - createdAt
+
+    CreateAppointmentBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        professionalId:
+          type: integer
+        serviceId:
+          type: integer
+        contractId:
+          type: integer
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+        notes:
+          type: string
+      required:
+        - clientId
+        - professionalId
+        - serviceId
+        - date
+        - startTime
+
+    UpdateAppointmentBody:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+        status:
+          type: string
+          enum: [scheduled, confirmed, completed, cancelled, no_show]
+        notes:
+          type: string
+
+    # Sales
+    Sale:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: string
+        professionalId:
+          type: integer
+        professionalName:
+          type: string
+        serviceId:
+          type: ["integer", "null"]
+        serviceName:
+          type: ["string", "null"]
+        packageId:
+          type: ["integer", "null"]
+        packageName:
+          type: ["string", "null"]
+        grossAmount:
+          type: number
+        paymentMethod:
+          type: string
+          enum: [pix, credit, debit, cash]
+        gateFee:
+          type: number
+          description: Payment gateway fee
+        netAmount:
+          type: number
+          description: Gross minus gateway fee
+        clinicAmount:
+          type: number
+          description: Clinic's share
+        professionalAmount:
+          type: number
+          description: Professional's share
+        appointmentId:
+          type: ["integer", "null"]
+        contractId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - clientId
+        - clientName
+        - professionalId
+        - professionalName
+        - serviceId
+        - serviceName
+        - packageId
+        - packageName
+        - grossAmount
+        - paymentMethod
+        - gateFee
+        - netAmount
+        - clinicAmount
+        - professionalAmount
+        - appointmentId
+        - contractId
+        - notes
+        - createdAt
+
+    SaleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sale"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+
+    CreateSaleBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        professionalId:
+          type: integer
+        serviceId:
+          type: integer
+        packageId:
+          type: integer
+        grossAmount:
+          type: number
+        paymentMethod:
+          type: string
+          enum: [pix, credit, debit, cash]
+        appointmentId:
+          type: integer
+        notes:
+          type: string
+      required:
+        - clientId
+        - professionalId
+        - grossAmount
+        - paymentMethod
+
+    UpdateSaleBody:
+      type: object
+      properties:
+        notes:
+          type: string
+        paymentMethod:
+          type: string
+          enum: [pix, credit, debit, cash]
+
+    # Contracts
+    Contract:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: string
+        professionalId:
+          type: integer
+        professionalName:
+          type: string
+        packageId:
+          type: integer
+        packageName:
+          type: string
+        serviceId:
+          type: integer
+        serviceName:
+          type: string
+        totalSessions:
+          type: integer
+        usedSessions:
+          type: integer
+        remainingSessions:
+          type: integer
+        saleId:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+        expiresAt:
+          type: ["string", "null"]
+          format: date
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - clientId
+        - clientName
+        - professionalId
+        - professionalName
+        - packageId
+        - packageName
+        - serviceId
+        - serviceName
+        - totalSessions
+        - usedSessions
+        - remainingSessions
+        - saleId
+        - status
+        - expiresAt
+        - notes
+        - createdAt
+
+    CreateContractBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        professionalId:
+          type: integer
+        packageId:
+          type: integer
+        saleId:
+          type: integer
+        notes:
+          type: string
+      required:
+        - clientId
+        - professionalId
+        - packageId
+
+    UpdateContractBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+        notes:
+          type: string
+
+    ContractSession:
+      type: object
+      properties:
+        id:
+          type: integer
+        contractId:
+          type: integer
+        appointmentId:
+          type: ["integer", "null"]
+        sessionNumber:
+          type: integer
+        performedAt:
+          type: string
+          format: date-time
+        notes:
+          type: ["string", "null"]
+      required:
+        - id
+        - contractId
+        - appointmentId
+        - sessionNumber
+        - performedAt
+        - notes
+
+    AddSessionBody:
+      type: object
+      properties:
+        appointmentId:
+          type: integer
+        performedAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+      required:
+        - performedAt
+
+    # Dashboard
+    DashboardSummary:
+      type: object
+      properties:
+        totalAppointments:
+          type: integer
+        completedAppointments:
+          type: integer
+        cancelledAppointments:
+          type: integer
+        totalRevenue:
+          type: number
+        clinicRevenue:
+          type: number
+        professionalRevenue:
+          type: number
+        newClients:
+          type: integer
+        activeContracts:
+          type: integer
+      required:
+        - totalAppointments
+        - completedAppointments
+        - cancelledAppointments
+        - totalRevenue
+        - clinicRevenue
+        - professionalRevenue
+        - newClients
+        - activeContracts
+
+    ProfessionalStat:
+      type: object
+      properties:
+        professionalId:
+          type: integer
+        professionalName:
+          type: string
+        appointments:
+          type: integer
+        revenue:
+          type: number
+        professionalEarnings:
+          type: number
+        clinicEarnings:
+          type: number
+      required:
+        - professionalId
+        - professionalName
+        - appointments
+        - revenue
+        - professionalEarnings
+        - clinicEarnings
+
+    # Reports
+    FinancialReport:
+      type: object
+      properties:
+        totalGross:
+          type: number
+        totalFees:
+          type: number
+        totalNet:
+          type: number
+        totalClinic:
+          type: number
+        totalProfessionals:
+          type: number
+        byPaymentMethod:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentMethodBreakdown"
+        byProfessional:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfessionalStat"
+        byService:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceBreakdown"
+        salesData:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sale"
+      required:
+        - totalGross
+        - totalFees
+        - totalNet
+        - totalClinic
+        - totalProfessionals
+        - byPaymentMethod
+        - byProfessional
+        - byService
+        - salesData
+
+    PaymentMethodBreakdown:
+      type: object
+      properties:
+        method:
+          type: string
+        count:
+          type: integer
+        total:
+          type: number
+      required:
+        - method
+        - count
+        - total
+
+    ServiceBreakdown:
+      type: object
+      properties:
+        serviceId:
+          type: integer
+        serviceName:
+          type: string
+        count:
+          type: integer
+        total:
+          type: number
+      required:
+        - serviceId
+        - serviceName
+        - count
+        - total
+
+    AppointmentReport:
+      type: object
+      properties:
+        total:
+          type: integer
+        byStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusBreakdown"
+        byProfessional:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfessionalAppointmentStat"
+        appointments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Appointment"
+      required:
+        - total
+        - byStatus
+        - byProfessional
+        - appointments
+
+    StatusBreakdown:
+      type: object
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+      required:
+        - status
+        - count
+
+    ProfessionalAppointmentStat:
+      type: object
+      properties:
+        professionalId:
+          type: integer
+        professionalName:
+          type: string
+        total:
+          type: integer
+        completed:
+          type: integer
+        cancelled:
+          type: integer
+      required:
+        - professionalId
+        - professionalName
+        - total
+        - completed
+        - cancelled
