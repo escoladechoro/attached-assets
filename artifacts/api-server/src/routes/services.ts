@@ -36,7 +36,8 @@ router.get("/services", async (req, res): Promise<void> => {
   }
 
   const services = await query.orderBy(servicesTable.name);
-  res.json(services.map(s => ({ ...s, price: parseFloat(s.price as unknown as string) })));
+  const mapped = services.map(s => ({ ...s, price: parseFloat(s.price as unknown as string) }));
+  res.json({ data: mapped, total: mapped.length });
 });
 
 router.post("/services", async (req, res): Promise<void> => {
@@ -137,7 +138,8 @@ router.get("/packages", async (_req, res): Promise<void> => {
     .leftJoin(servicesTable, eq(packagesTable.serviceId, servicesTable.id))
     .orderBy(packagesTable.name);
 
-  res.json(packages.map(p => ({ ...p, price: parseFloat(p.price as unknown as string), serviceName: p.serviceName ?? "" })));
+  const mappedPkgs = packages.map(p => ({ ...p, price: parseFloat(p.price as unknown as string), serviceName: p.serviceName ?? "" }));
+  res.json({ data: mappedPkgs, total: mappedPkgs.length });
 });
 
 router.post("/packages", async (req, res): Promise<void> => {

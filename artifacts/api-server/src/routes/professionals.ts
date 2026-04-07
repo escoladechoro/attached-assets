@@ -35,11 +35,12 @@ router.get("/professionals", async (req, res): Promise<void> => {
 
   const professionals = await query.orderBy(professionalsTable.name);
 
-  res.json(professionals.map(p => ({
+  const mapped = professionals.map(p => ({
     ...p,
     clinicSharePercent: parseFloat(p.clinicSharePercent as unknown as string),
     professionalSharePercent: parseFloat(p.professionalSharePercent as unknown as string),
-  })));
+  }));
+  res.json({ data: mapped, total: mapped.length });
 });
 
 router.post("/professionals", async (req, res): Promise<void> => {

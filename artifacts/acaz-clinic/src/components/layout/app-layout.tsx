@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Sidebar } from "./sidebar";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
@@ -5,6 +6,15 @@ import { useLocation } from "wouter";
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!user && location !== "/login") {
+      setLocation("/login");
+    } else if (user && location === "/login") {
+      setLocation("/dashboard");
+    }
+  }, [isLoading, user, location, setLocation]);
 
   if (isLoading) {
     return (
@@ -14,12 +24,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user && location !== "/login") {
-    setLocation("/login");
-    return null;
-  }
-
-  if (location === "/login") {
+  if (!user) {
     return <>{children}</>;
   }
 

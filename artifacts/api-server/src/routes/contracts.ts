@@ -55,7 +55,7 @@ router.get("/contracts", async (req, res): Promise<void> => {
     .orderBy(contractsTable.createdAt);
 
   const enriched = await Promise.all(contracts.map(enrichContract));
-  res.json(enriched);
+  res.json({ data: enriched, total: enriched.length });
 });
 
 router.post("/contracts", async (req, res): Promise<void> => {

@@ -57,7 +57,7 @@ router.get("/appointments", async (req, res): Promise<void> => {
     .orderBy(appointmentsTable.date, appointmentsTable.startTime);
 
   const enriched = await Promise.all(appointments.map(enrichAppointment));
-  res.json(enriched);
+  res.json({ data: enriched, total: enriched.length });
 });
 
 router.post("/appointments", async (req, res): Promise<void> => {

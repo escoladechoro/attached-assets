@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { useGetMe, setAuthTokenGetter } from "@workspace/api-client-react";
 import type { User } from "@workspace/api-client-react";
 
@@ -11,14 +11,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("acaz_token")
-  );
+const storedToken = localStorage.getItem("acaz_token");
+if (storedToken) {
+  setAuthTokenGetter(() => storedToken);
+}
 
-  useEffect(() => {
-    setAuthTokenGetter(() => localStorage.getItem("acaz_token"));
-  }, []);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [token, setToken] = useState<string | null>(storedToken);
 
   const { data: user, isLoading: isUserLoading, refetch } = useGetMe({
     query: {
@@ -27,22 +26,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
-  useEffect(() => {
-    if (!token) {
-      setAuthTokenGetter(() => null);
-    } else {
-      setAuthTokenGetter(() => token);
-    }
-  }, [token]);
-
   const login = (newToken: string) => {
     localStorage.setItem("acaz_token", newToken);
+    setAuthTokenGetter(() => newToken);
     setToken(newToken);
     refetch();
   };
 
   const logout = () => {
     localStorage.removeItem("acaz_token");
+    setAuthTokenGetter(null);
     setToken(null);
   };
 
