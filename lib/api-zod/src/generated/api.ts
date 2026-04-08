@@ -521,14 +521,14 @@ export const DeletePackageResponse = zod.object({
  * @summary List appointments
  */
 export const ListAppointmentsQueryParams = zod.object({
-  date: zod.date().optional(),
+  date: zod.string().optional(),
   professionalId: zod.coerce.number().optional(),
   clientId: zod.coerce.number().optional(),
   status: zod
     .enum(["scheduled", "confirmed", "completed", "cancelled", "no_show"])
     .optional(),
-  startDate: zod.date().optional(),
-  endDate: zod.date().optional(),
+  startDate: zod.string().optional(),
+  endDate: zod.string().optional(),
 });
 
 export const ListAppointmentsResponseItem = zod.object({
@@ -657,7 +657,7 @@ export const DeleteAppointmentResponse = zod.object({
  */
 export const GetAvailableSlotsQueryParams = zod.object({
   professionalId: zod.coerce.number(),
-  date: zod.date(),
+  date: zod.string(),
   serviceId: zod.coerce.number(),
 });
 
@@ -704,8 +704,8 @@ export const listSalesQueryPageDefault = 1;
 export const listSalesQueryLimitDefault = 20;
 
 export const ListSalesQueryParams = zod.object({
-  startDate: zod.date().optional(),
-  endDate: zod.date().optional(),
+  startDate: zod.string().optional(),
+  endDate: zod.string().optional(),
   professionalId: zod.coerce.number().optional(),
   clientId: zod.coerce.number().optional(),
   page: zod.coerce.number().default(listSalesQueryPageDefault),
@@ -1061,8 +1061,8 @@ export const GetProfessionalStatsResponse = zod.array(
  * @summary Financial report by period
  */
 export const GetFinancialReportQueryParams = zod.object({
-  startDate: zod.date(),
-  endDate: zod.date(),
+  startDate: zod.string(),
+  endDate: zod.string(),
   professionalId: zod.coerce.number().optional(),
   serviceId: zod.coerce.number().optional(),
 });
@@ -1127,8 +1127,8 @@ export const GetFinancialReportResponse = zod.object({
  * @summary Appointment report
  */
 export const GetAppointmentReportQueryParams = zod.object({
-  startDate: zod.date(),
-  endDate: zod.date(),
+  startDate: zod.string(),
+  endDate: zod.string(),
   professionalId: zod.coerce.number().optional(),
 });
 
