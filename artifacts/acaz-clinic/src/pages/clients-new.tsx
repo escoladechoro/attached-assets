@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Loader2, MapPin } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 const clientSchema = z.object({
@@ -27,19 +28,72 @@ const clientSchema = z.object({
 
 type ClientForm = z.infer<typeof clientSchema>;
 
+interface ViaCepResponse {
+  logradouro: string;
+  bairro: string;
+  localidade: string;
+  uf: string;
+  erro?: boolean;
+}
+
 export default function NewClient() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const createMutation = useCreateClient();
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepFound, setCepFound] = useState<boolean | null>(null);
 
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ClientForm>({
     resolver: zodResolver(clientSchema),
   });
+
+  const cepValue = watch("cep");
+
+  useEffect(() => {
+    const digits = (cepValue ?? "").replace(/\D/g, "");
+    if (digits.length !== 8) {
+      setCepFound(null);
+      return;
+    }
+
+    let cancelled = false;
+    setCepLoading(true);
+    setCepFound(null);
+
+    fetch(`https://viacep.com.br/ws/${digits}/json/`)
+      .then((r) => r.json())
+      .then((data: ViaCepResponse) => {
+        if (cancelled) return;
+        if (data.erro) {
+          setCepFound(false);
+          setCepLoading(false);
+          return;
+        }
+        const parts = [data.logradouro, data.bairro, `${data.localidade} - ${data.uf}`]
+          .filter(Boolean)
+          .join(", ");
+        setValue("address", parts, { shouldValidate: true });
+        setCepFound(true);
+        setCepLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCepFound(false);
+          setCepLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cepValue, setValue]);
 
   const onSubmit = (data: ClientForm) => {
     createMutation.mutate(
@@ -106,11 +160,39 @@ export default function NewClient() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cep">CEP</Label>
-                <Input id="cep" {...register("cep")} placeholder="00000-000" />
+                <div className="relative">
+                  <Input
+                    id="cep"
+                    {...register("cep")}
+                    placeholder="00000-000"
+                    className={
+                      cepFound === false
+                        ? "border-destructive pr-10"
+                        : cepFound === true
+                        ? "border-green-500 pr-10"
+                        : "pr-10"
+                    }
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {cepLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : cepFound === true ? (
+                      <MapPin className="h-4 w-4 text-green-500" />
+                    ) : cepFound === false ? (
+                      <span className="text-xs text-destructive">não encontrado</span>
+                    ) : null}
+                  </div>
+                </div>
+                {cepFound === false && (
+                  <p className="text-xs text-destructive">CEP não encontrado. Preencha o endereço manualmente.</p>
+                )}
+                {cepFound === true && (
+                  <p className="text-xs text-green-600">Endereço preenchido automaticamente.</p>
+                )}
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="address">Endereço Completo</Label>
-                <Input id="address" {...register("address")} />
+                <Input id="address" {...register("address")} placeholder="Rua, Bairro, Cidade - UF" />
               </div>
             </div>
 
