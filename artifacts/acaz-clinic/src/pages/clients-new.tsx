@@ -56,6 +56,12 @@ export default function NewClient() {
 
   const cepValue = watch("cep");
 
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+    const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    setValue("cep", formatted, { shouldValidate: false });
+  };
+
   useEffect(() => {
     const digits = (cepValue ?? "").replace(/\D/g, "");
     if (digits.length !== 8) {
@@ -164,6 +170,7 @@ export default function NewClient() {
                   <Input
                     id="cep"
                     {...register("cep")}
+                    onChange={handleCepChange}
                     placeholder="00000-000"
                     className={
                       cepFound === false
